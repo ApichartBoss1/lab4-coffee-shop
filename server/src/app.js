@@ -1,26 +1,18 @@
-let express = require('express')
-let bodyParser = require('body-parser')
+const express = require('express')
+const bodyParser = require('body-parser')
+const config = require('./config/config')
+const db = require('./models')
+const routes = require('./routes')
 
 const app = express()
 
 app.use(bodyParser.json())
-app.use(bodyParser.urlencoded({extended: true}))
+app.use(bodyParser.urlencoded({ extended: true }))
 
-// เรียกใช้ routes โดยส่ง app เข้าไป
-require('./routes')(app)
+routes(app)
 
-app.get('/status', function (req, res) {
-    res.send('Hello nodejs server')
+db.sequelize.sync({ force: false }).then(() => {
+  app.listen(config.port, () => {
+    console.log('CoffeeShop Server running on port ' + config.port)
+  })
 })
-
-app.get('/hello/:person', function (req, res) {
-    console.log('hello - ' + req.params.person)
-    res.send('sey hello with ' + req.params.person)
-})
-
-let port = 8081
-
-app.listen(port, function () {
-    console.log('server running on ' + port)
-})
-
